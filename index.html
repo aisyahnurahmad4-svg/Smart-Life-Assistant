@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smart Life Assistant</title>
+<style>
+    body {
+        font-family: "Poppins", sans-serif;
+        background: linear-gradient(135deg, #89f7fe, #66a6ff);
+        color: #333;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: start;
+        min-height: 100vh;
+        margin: 0;
+        padding: 20px;
+    }
+
+    header {
+        text-align: center;
+        margin-top: 10px;
+    }
+
+    h1 {
+        font-size: 2em;
+        color: #fff;
+        text-shadow: 1px 1px 4px rgba(0,0,0,0.2);
+    }
+
+    .assistant-box {
+        background: rgba(255,255,255,0.9);
+        border-radius: 20px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        width: 90%;
+        max-width: 480px;
+        padding: 25px;
+        margin-top: 20px;
+    }
+
+    .greeting {
+        font-size: 1.2em;
+        text-align: center;
+        margin-bottom: 15px;
+    }
+
+    .weather {
+        text-align: center;
+        margin: 10px 0;
+    }
+
+    .quote-box {
+        background: #f7f9fc;
+        border-left: 5px solid #66a6ff;
+        padding: 15px;
+        border-radius: 10px;
+        font-style: italic;
+        margin-top: 15px;
+    }
+
+    .schedule {
+        margin-top: 20px;
+    }
+
+    .schedule h3 {
+        text-align: center;
+        color: #333;
+    }
+
+    .task-list {
+        list-style: none;
+        padding: 0;
+    }
+
+    .task-list li {
+        background: #e3f2fd;
+        margin: 5px 0;
+        padding: 10px;
+        border-radius: 8px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    button {
+        background-color: #66a6ff;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 10px 15px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: background 0.3s;
+    }
+
+    button:hover {
+        background-color: #4a90e2;
+    }
+
+    footer {
+        margin-top: 30px;
+        text-align: center;
+        color: white;
+        font-size: 0.9em;
+    }
+
+    .voice-section {
+        text-align: center;
+        margin-top: 15px;
+    }
+
+    .voice-section button {
+        margin: 5px;
+    }
+</style>
+</head>
+<body>
+<header>
+    <h1>🤖 Smart Life Assistant</h1>
+</header>
+
+<div class="assistant-box">
+    <div class="greeting" id="greeting">Halo, Aisyah! 🌞</div>
+    <div class="weather" id="weather">Sedang memuat info cuaca...</div>
+
+    <div class="quote-box" id="quote">
+        “Setiap hari adalah kesempatan baru untuk jadi lebih baik.” 🌸
+    </div>
+
+    <div class="voice-section">
+        <button onclick="speakGreeting()">🔊 Dengarkan Suara</button>
+        <button onclick="startListening()">🎙️ Bicara ke Asisten</button>
+    </div>
+
+    <div class="schedule">
+        <h3>📅 Jadwal Harianmu</h3>
+        <input type="text" id="taskInput" placeholder="Contoh: Belajar Matematika 19.00" style="width:70%; padding:8px;">
+        <button onclick="addTask()">Tambah</button>
+        <ul class="task-list" id="taskList"></ul>
+    </div>
+</div>
+
+<footer>
+    Dibuat dengan 💙 oleh Aisyah | Smart Life Assistant ver 1.0
+</footer>
+
+<script>
+// ===== GREETING BERDASARKAN WAKTU =====
+function updateGreeting() {
+    const hour = new Date().getHours();
+    let greet = "Halo!";
+
+    if (hour >= 5 && hour < 11) greet = "Selamat pagi 🌅";
+    else if (hour >= 11 && hour < 15) greet = "Selamat siang ☀️";
+    else if (hour >= 15 && hour < 18) greet = "Selamat sore 🌇";
+    else greet = "Selamat malam 🌙";
+
+    document.getElementById("greeting").innerText = ${greet}, Aisyah!;
+}
+updateGreeting();
+
+// ===== QUOTES MOTIVASI =====
+const quotes = [
+    "Lakukan yang terbaik hari ini, karena besok belum tentu datang.",
+    "Kamu hebat lebih dari yang kamu kira!",
+    "Kesuksesan adalah hasil dari kebiasaan kecil yang konsisten.",
+    "Jangan takut gagal, takutlah jika kamu tidak mencoba.",
+    "Setiap usaha kecil hari ini membawa hasil besar nanti."
+];
+document.getElementById("quote").innerText = "“" + quotes[Math.floor(Math.random() * quotes.length)] + "”";
+
+// ===== CUACA OTOMATIS =====
+function fetchWeather() {
+    if (!navigator.geolocation) {
+        document.getElementById("weather").innerText = "Fitur lokasi tidak tersedia.";
+        return;
+    }
+    navigator.geolocation.getCurrentPosition(position => {
+        const lat = position.coords.latitude;
+        const lon = position.coords.longitude;
+        const apiKey = "https://api.open-meteo.com/v1/forecast?latitude=" + lat + "&longitude=" + lon + "&current_weather=true";
+        fetch(apiKey)
+            .then(res => res.json())
+            .then(data => {
+                const temp = data.current_weather.temperature;
+                const weatherCode = data.current_weather.weathercode;
+                let condition = "cerah ☀️";
+                if (weatherCode > 50) condition = "mendung atau hujan 🌧️";
+                document.getElementById("weather").innerText = Cuaca: ${condition}, Suhu ${temp}°C;
+            })
+            .catch(() => {
+                document.getElementById("weather").innerText = "Tidak bisa memuat cuaca.";
+            });
+    });
+}
+fetchWeather();
+
+// ===== TUGAS HARIAN =====
+function addTask() {
+    const input = document.getElementById("taskInput");
+    const text = input.value.trim();
+    if (!text) return;
+    const li = document.createElement("li");
+    li.textContent = text;
+    const delBtn = document.createElement("button");
+    delBtn.textContent = "Selesai";
+    delBtn.onclick = () => li.remove();
+    li.appendChild(delBtn);
+    document.getElementById("taskList").appendChild(li);
+    input.value = "";
+}
+
+// ===== SUARA: TEXT TO SPEECH =====
+function speakGreeting() {
+    const text = document.getElementById("greeting").innerText + ". " + document.getElementById("quote").innerText;
+    const speech = new SpeechSynthesisUtterance(text);
+    speech.lang = "id-ID";
+    speech.rate = 1;
+    speech.pitch = 1;
+    window.speechSynthesis.speak(speech);
+}
+
+// ===== SUARA: SPEECH RECOGNITION =====
+function startListening() {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+        alert("Browser kamu belum mendukung fitur ini 😢");
+        return;
+    }
+    const recognition = new SpeechRecognition();
+    recognition.lang = "id-ID";
+    recognition.start();
+
+    recognition.onresult = (event) => {
+        const command = event.results[0][0].transcript.toLowerCase();
+        if (command.includes("cuaca")) speakText(document.getElementById("weather").innerText);
+        else if (command.includes("motivasi")) speakText(document.getElementById("quote").innerText);
+        else if (command.includes("halo")) speakText("Halo juga! Semangat ya hari ini!");
+        else speakText("Maaf, aku belum mengerti perintah itu.");
+    };
+}
+
+function speakText(text) {
+    const speech = new SpeechSynthesisUtterance(text);
+    speech.lang = "id-ID";
+    window.speechSynthesis.speak(speech);
+}
+</script>
+</body>
+</html>
